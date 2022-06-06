@@ -23,7 +23,40 @@ public class Client {
 	
 	static RestTemplate restTemplate = new RestTemplate();
 	public static void main(String args[]) {
-		postAddRent((long) 1, "2020-12-09", "2020-12-22");
+//		Clothes cloth = getClothesById((long) 1);
+		backEndInit();
+//		rentClothes();
+	}
+	
+	//método para adicionar roupas e lojas para utilização na demonstração do código
+	private static void backEndInit() {
+		postAddStore("CiA");
+		postAddStore("Matisa");
+		
+		Store store = getStoreById((long) 1);
+		System.out.println("loja de id "+store.getId()+" :");
+		System.out.println(store.getName());
+		
+		postAddClothes("camisa azul", "esportiva", (float) 12, store.getId());
+		postAddClothes("camisa preta", "esportiva", (float) 120, store.getId());
+		postAddClothes("calça azul", "formal", (float) 12, store.getId());
+		
+		
+	}
+
+	//método para adicionar aluguel para utilização na demonstração do código
+	private static void rentClothes() {
+		getClothesByStyle("esportiva", "2020-02-12", "2020-12-01");
+		
+		postAddRent((long) 1,"2020-02-12", "2020-12-01");
+		
+		Clothes cloth = getClothesById((long) 1);
+		
+		System.out.print("roupa de id "+cloth.getId()+" : ");
+		System.out.println(cloth.getName());
+		
+
+		getClothesByStyle("esportiva", "2020-02-12", "2020-12-01");
 	}
 	//stores
 	private static void postAddStore(String name) {
@@ -37,10 +70,6 @@ public class Client {
 		
 		try {
 			Store store = restTemplate.postForObject(STORE_URL+"add", request, Store.class);
-			System.out.print("loja ");
-			System.out.print(store.getName());
-			System.out.print(" id: "+store.getName());
-			System.out.println(" adcionada");
 		}catch(Exception e) {
 			System.out.println(e);
 		}
@@ -58,26 +87,24 @@ public class Client {
 		}
 	}
 	
-	private static void getStoreById(Long id) {
-//		Map<String, Long> param = new HashMap<>(); 
-//		param.put("id", id);
+	private static Store getStoreById(Long id) {
 		
 		try {
 			Store store = restTemplate.getForObject(STORE_URL+id, Store.class);
-			System.out.println("loja de id "+id+" :");
-			System.out.println(store.getName());
+			return store;
 		}catch(Exception e) {
 			System.out.println(e);
+			return null;
 		}
 	}
 	
 	//Clothes
-	private static void postAddClothes(String name, String style, Float price) {
+	private static void postAddClothes(String name, String style, Float price, Long storeId) {
 		HttpHeaders header = new HttpHeaders();
 		header.setContentType(MediaType.APPLICATION_JSON);
 		
 		Store store = new Store();
-		store.setId((long) 1);
+		store.setId(storeId);
 		
 		Clothes cloth = new Clothes();
 		cloth.setName(name);
@@ -112,16 +139,13 @@ public class Client {
 		}
 	}
 	
-	private static void getClothesById(Long id) {
-//			Map<String, Long> param = new HashMap<>(); 
-//			param.put("id", id);
-		
+	private static Clothes getClothesById(Long id) {
 		try {
 			Clothes cloth = restTemplate.getForObject(CLOTHES_URL+id, Clothes.class);
-			System.out.println("loja de id "+id+" :");
-			System.out.println(cloth.getName());
+			return cloth;
 		}catch(Exception e) {
 			System.out.println(e);
+			return null;
 		}
 	}
 	
@@ -160,8 +184,8 @@ public class Client {
 		
 		try {
 			Rent response = restTemplate.postForObject(RENT_URL+"add", request, Rent.class);
-			System.out.print("preço ");
-			System.out.print(response.getPrice());
+			System.out.print("preço total da  ");
+			System.out.println(response.getPrice());
 		}catch(Exception e) {
 			System.out.println(e);
 		}
